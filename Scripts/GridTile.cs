@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class GridTile : MonoBehaviour
 {
-    private Vector2 gridPosXY;
+    private Vector2 gridPos;
 
     public GridActor occupier;
 
@@ -14,6 +14,9 @@ public class GridTile : MonoBehaviour
     public Material matMovement;
     public Material matAttack;
 
+    public int gCost;
+    public int hCost;
+    public GridTile pathParent;
 
     void Start()
     {
@@ -46,9 +49,10 @@ public class GridTile : MonoBehaviour
         currState = _state;
     }
 
-    public void SetGridXY(int x, int y) { gridPosXY.x = x; gridPosXY.y = y;  }
-    public Vector2 GetXY() { return gridPosXY; }
+    public void SetGridXY(int x, int y) { gridPos.x = x; gridPos.y = y;  }
+    public Vector2 GetXY() { return gridPos; }
 
     public void SetOccupier(GridActor a) { occupier = a; }
     public GridActor GetOccupier() { return occupier; }
+    public int fCost() { return gCost + hCost; }
 }

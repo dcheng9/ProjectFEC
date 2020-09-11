@@ -6,6 +6,7 @@ using System.Collections.Specialized;
 using UnityEngine.SceneManagement;
 using UnityEditorInternal;
 using UnityEditor.Experimental.GraphView;
+using UnityEngine.Tilemaps;
 
 public class GridManager : MonoBehaviour
 {
@@ -70,6 +71,25 @@ public class GridManager : MonoBehaviour
     //private Vector3 GetWorldPosition(float x, float y, float z) { return new Vector3(x, y, z) * tileSize; }
     public Vector3 GetTileCenterPos(float x, float y, float z) { return new Vector3(x, y, z) + new Vector3(tileSize, 0, tileSize) * 0.5f; }
 
+    public GridTile GetTile(float x, float y)
+    {
+        return gridArray[(int)x, (int)y].GetComponent<GridTile>();
+    }
+    public List<GridTile> GetTileNeighbors(float x, float y)
+    {
+        List<GridTile> neighbors = new List<GridTile>();
+
+        if (IsWithinGrid(x + 1, y))
+            neighbors.Add(GetTile(x + 1, y));
+        if (IsWithinGrid(x - 1, y))
+            neighbors.Add(GetTile(x - 1, y));
+        if (IsWithinGrid(x, y + 1))
+            neighbors.Add(GetTile(x, y + 1));
+        if (IsWithinGrid(x, y - 1))
+            neighbors.Add(GetTile(x, y - 1));
+
+        return neighbors;
+    }
     public void SetTileOccupier(GridActor a, float x, float y) 
     {
         gridArray[(int)x, (int)y].GetComponent<GridTile>().SetOccupier(a);

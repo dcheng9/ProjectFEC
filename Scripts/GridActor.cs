@@ -26,6 +26,11 @@ public class GridActor : MonoBehaviour
         
     }
 
+    public void GoTo(Vector2 target)
+    {
+
+    }
+
     public void ShowMovementTiles()
     {
         for (float x = gridPosXY.x - maxMovementPoints; x <= gridPosXY.x + maxMovementPoints; x++)
