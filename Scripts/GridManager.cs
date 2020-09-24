@@ -48,7 +48,7 @@ public class GridManager : MonoBehaviour
             for (int y = 0; y < gridArray.GetLength(1); y++)
             {
                 gridArray[x, y] = Instantiate(gridTilePrefab, GetTileCenterPos(x, 0, y), Quaternion.identity);
-                gridArray[x, y].GetComponent<GridTile>().SetGridXY(x, y);
+                gridArray[x, y].GetComponent<GridTile>().SetGridPos(x, y);
             }
         }
     }
@@ -60,7 +60,7 @@ public class GridManager : MonoBehaviour
 
 
     // Check if coordinates are within the grid bounds
-    public bool IsWithinGrid(float x, float y)
+    public bool IsWithinGrid(int x, int y)
     {
         if (x >= 0 && x <= gridWidth - 1 && y >= 0 && y <= gridHeight - 1)
             return true;
@@ -71,11 +71,11 @@ public class GridManager : MonoBehaviour
     //private Vector3 GetWorldPosition(float x, float y, float z) { return new Vector3(x, y, z) * tileSize; }
     public Vector3 GetTileCenterPos(float x, float y, float z) { return new Vector3(x, y, z) + new Vector3(tileSize, 0, tileSize) * 0.5f; }
 
-    public GridTile GetTile(float x, float y)
+    public GridTile GetTile(int x, int y)
     {
-        return gridArray[(int)x, (int)y].GetComponent<GridTile>();
+        return gridArray[x, y].GetComponent<GridTile>();
     }
-    public List<GridTile> GetTileNeighbors(float x, float y)
+    public List<GridTile> GetTileNeighbors(int x, int y)
     {
         List<GridTile> neighbors = new List<GridTile>();
 
@@ -90,14 +90,14 @@ public class GridManager : MonoBehaviour
 
         return neighbors;
     }
-    public void SetTileOccupier(GridActor a, float x, float y) 
+    public void SetTileOccupier(GridActor a, int x, int y) 
     {
-        gridArray[(int)x, (int)y].GetComponent<GridTile>().SetOccupier(a);
+        gridArray[x, y].GetComponent<GridTile>().SetOccupier(a);
     }
-    public GridActor GetTileOccupier(float x, float y)
+    public GridActor GetTileOccupier(int x, int y)
     {
-        return gridArray[(int)x, (int)y].GetComponent<GridTile>().GetOccupier();
+        return gridArray[x, y].GetComponent<GridTile>().GetOccupier();
     }
 
-    public void SetTileState(GridTile.TileState s, float x, float y) { gridArray[(int)x, (int)y].GetComponent<GridTile>().SetState(s); }
+    public void SetTileState(GridTile.TileState s, int x, int y) { gridArray[x, y].GetComponent<GridTile>().SetState(s); }
 }

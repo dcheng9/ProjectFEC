@@ -14,8 +14,8 @@ public class Tester : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.P))
         {
-            if (!GridManager.Inst.GetTileOccupier(0, 0))
-                Instantiate(testPlayerPrefab, GridManager.Inst.GetTileCenterPos(0, 0.5f, 0), Quaternion.identity);
+            if (!GridManager.Inst.GetTileOccupier(3, 7))
+                Instantiate(testPlayerPrefab, GridManager.Inst.GetTileCenterPos(3, 0.5f, 7), Quaternion.identity);
         }
         if (Input.GetKeyDown(KeyCode.O))
         {

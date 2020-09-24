@@ -6,10 +6,10 @@ using UnityEngine;
 public class GridPathfinding : MonoBehaviour
 {
     public List<GridTile> path = new List<GridTile>();
-    public List<GridTile> FindPath (Vector2 startPos, Vector2 targetPos)
+    public List<GridTile> FindPath (Vector2 _startPos, Vector2 _targetPos)
     {
-        GridTile startTile = GridManager.Inst.GetTile(startPos.x, startPos.y);
-        GridTile targetTile = GridManager.Inst.GetTile(targetPos.x, targetPos.y);
+        GridTile startTile = GridManager.Inst.GetTile((int)_startPos.x, (int)_startPos.y);
+        GridTile targetTile = GridManager.Inst.GetTile((int)_targetPos.x, (int)_targetPos.y);
 
         List<GridTile> openSet = new List<GridTile>();
         HashSet<GridTile> closedSet = new HashSet<GridTile>();
@@ -45,7 +45,7 @@ public class GridPathfinding : MonoBehaviour
                 
 
             // Iterate through all tile neighbors to find path
-            foreach (GridTile neighbor in GridManager.Inst.GetTileNeighbors(currentTile.GetXY().x, currentTile.GetXY().y))
+            foreach (GridTile neighbor in GridManager.Inst.GetTileNeighbors(currentTile.GetGridPosX(), currentTile.GetGridPosY()))
             {
                 if (closedSet.Contains(neighbor))
                     continue;
@@ -66,8 +66,8 @@ public class GridPathfinding : MonoBehaviour
         return path;
     }
 
-    public int GetDistance(GridTile startTile, GridTile targetTile)
+    public int GetDistance(GridTile _startTile, GridTile _targetTile)
     {
-        return (int)(Mathf.Abs(startTile.GetXY().x - targetTile.GetXY().x) + Mathf.Abs(startTile.GetXY().y - targetTile.GetXY().y));
+        return (Mathf.Abs(_startTile.GetGridPosX() - _targetTile.GetGridPosX()) + Mathf.Abs(_startTile.GetGridPosY() - _targetTile.GetGridPosY()));
     }
 }

@@ -7,19 +7,20 @@ using UnityEngine.Scripting.APIUpdating;
 
 public class PlayerCursor : MonoBehaviour
 {
-    public Vector2 gridPos;
+    public int gridPosX;
+    public int gridPosY;
 
-    public Vector3 nextTilePos;
+    private Vector3 nextTilePos;
     public float speed;
 
-    public bool moving;
+    private bool moving;
 
-    public GridActor gridActorSelected;
+    private GridActor gridActorSelected;
 
     void Start()
     {
-        gridPos.x = 0;
-        gridPos.y = 0;
+        gridPosX = 0;
+        gridPosY = 0;
         moving = false;
 
         nextTilePos = transform.position;
@@ -41,48 +42,44 @@ public class PlayerCursor : MonoBehaviour
         }
 
         // Movement Inputs
-        if (!moving && Input.GetAxis("Horizontal") > 0 && GridManager.Inst.IsWithinGrid(gridPos.x + 1, gridPos.y))
+        if (!moving && Input.GetAxis("Horizontal") > 0 && GridManager.Inst.IsWithinGrid(gridPosX + 1, gridPosY))
         {
-            nextTilePos = GridManager.Inst.GetTileCenterPos(gridPos.x + 1, transform.position.y, gridPos.y);
+            nextTilePos = GridManager.Inst.GetTileCenterPos(gridPosX + 1, transform.position.y, gridPosY);
             moving = true;
-            gridPos.x++;
+            gridPosX++;
         }
-        else if (!moving && Input.GetAxis("Horizontal") < 0 && GridManager.Inst.IsWithinGrid(gridPos.x - 1, gridPos.y))
+        else if (!moving && Input.GetAxis("Horizontal") < 0 && GridManager.Inst.IsWithinGrid(gridPosX - 1, gridPosY))
         {
-            nextTilePos = GridManager.Inst.GetTileCenterPos(gridPos.x - 1, transform.position.y, gridPos.y);
+            nextTilePos = GridManager.Inst.GetTileCenterPos(gridPosX - 1, transform.position.y, gridPosY);
             moving = true;
-            gridPos.x--;
+            gridPosX--;
         }
-        else if (!moving && Input.GetAxis("Vertical") > 0 && GridManager.Inst.IsWithinGrid(gridPos.x, gridPos.y + 1))
+        else if (!moving && Input.GetAxis("Vertical") > 0 && GridManager.Inst.IsWithinGrid(gridPosX, gridPosY + 1))
         {
-            nextTilePos = GridManager.Inst.GetTileCenterPos(gridPos.x, transform.position.y, gridPos.y + 1);
+            nextTilePos = GridManager.Inst.GetTileCenterPos(gridPosX, transform.position.y, gridPosY + 1);
             moving = true;
-            gridPos.y++;
+            gridPosY++;
         }
-        else if (!moving && Input.GetAxis("Vertical") < 0 && GridManager.Inst.IsWithinGrid(gridPos.x, gridPos.y - 1))
+        else if (!moving && Input.GetAxis("Vertical") < 0 && GridManager.Inst.IsWithinGrid(gridPosX, gridPosY - 1))
         {
-            nextTilePos = GridManager.Inst.GetTileCenterPos(gridPos.x, transform.position.y, gridPos.y - 1);
+            nextTilePos = GridManager.Inst.GetTileCenterPos(gridPosX, transform.position.y, gridPosY - 1);
             moving = true;
-            gridPos.y--;
+            gridPosY--;
         }
         // A Button Inputs
         else if (!moving && Input.GetKeyDown(KeyCode.Z))//Input.GetAxis("A") < 0) *FIX THIS*
         {
             // [SELECT ACTOR] If nothing is selected and there is an actor on the tile
-            if (!gridActorSelected && GridManager.Inst.GetTileOccupier(gridPos.x, gridPos.y))
+            if (!gridActorSelected && GridManager.Inst.GetTileOccupier(gridPosX, gridPosY))
             {
-                gridActorSelected = GridManager.Inst.GetTileOccupier(gridPos.x, gridPos.y);
-                GridManager.Inst.GetTileOccupier(gridPos.x, gridPos.y).GetComponent<GridActor>().Select();
-                //gridActorSelected.ShowMovementTiles();
+                gridActorSelected = GridManager.Inst.GetTileOccupier(gridPosX, gridPosY);
+                GridManager.Inst.GetTileOccupier(gridPosX, gridPosY).GetComponent<GridActor>().Select();
+                gridActorSelected.ShowMovementTiles();
             }
             // [MOVE ACTOR] If something is selected and there isn't an actor on the tile
-            else if (gridActorSelected && !GridManager.Inst.GetTileOccupier(gridPos.x, gridPos.y))
+            else if (gridActorSelected && !GridManager.Inst.GetTileOccupier(gridPosX, gridPosY))
             {
-                //gridActorSelected.SetGridXYPos(gridPosXY.x, gridPosXY.y);
-
-
-
-                gridActorSelected.Deselect();
+                gridActorSelected.PathfindingTo(new Vector2(gridPosX, gridPosY));
                 gridActorSelected = null;
             }
         }

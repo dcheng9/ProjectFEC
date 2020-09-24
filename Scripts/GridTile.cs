@@ -4,12 +4,13 @@ using UnityEngine;
 
 public class GridTile : MonoBehaviour
 {
-    private Vector2 gridPos;
+    private int gridPosX;
+    private int gridPosY;
 
-    public GridActor occupier;
+    private GridActor occupier;
 
     public enum TileState { None, Movement, Attack };
-    public TileState currState;
+    private TileState currState;
 
     public Material matMovement;
     public Material matAttack;
@@ -40,6 +41,7 @@ public class GridTile : MonoBehaviour
             case TileState.Movement:
                 GetComponent<Renderer>().enabled = true;
                 GetComponent<Renderer>().material = matMovement;
+                StartCoroutine(FadeIn());
                 break;
             case TileState.Attack:
                 GetComponent<Renderer>().enabled = true;
@@ -49,8 +51,25 @@ public class GridTile : MonoBehaviour
         currState = _state;
     }
 
-    public void SetGridXY(int x, int y) { gridPos.x = x; gridPos.y = y;  }
-    public Vector2 GetXY() { return gridPos; }
+    IEnumerator FadeIn()
+    {
+        Color tempColor = this.GetComponent<Renderer>().material.color;
+        tempColor.a = 0;
+        this.GetComponent<Renderer>().material.color = tempColor;
+
+        while (this.GetComponent<Renderer>().material.color.a < 0.5f)
+        {
+            tempColor = new Color(tempColor.r, tempColor.g, tempColor.b, tempColor.a + (4 * Time.deltaTime));
+
+            this.GetComponent<Renderer>().material.color = tempColor;
+            yield return null;
+        }
+    }
+
+    public void SetGridPos(int x, int y) { gridPosX = x; gridPosY = y;  }
+    public int GetGridPosX() { return gridPosX; }
+    public int GetGridPosY() { return gridPosY; }
+    public Vector3 GetPos() { return transform.position; }
 
     public void SetOccupier(GridActor a) { occupier = a; }
     public GridActor GetOccupier() { return occupier; }
