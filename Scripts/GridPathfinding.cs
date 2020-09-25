@@ -34,12 +34,14 @@ public class GridPathfinding : MonoBehaviour
             {
                 GridTile tempTile = targetTile;
 
+                // Fill out the correct path and reorient it
                 while (tempTile != startTile)
                 {
                     path.Add(tempTile);
                     tempTile = tempTile.pathParent;
                 }
                 path.Reverse();
+
                 openSet.Clear();
             }
                 
@@ -66,6 +68,7 @@ public class GridPathfinding : MonoBehaviour
         return path;
     }
 
+    // Get distance in tiles
     public int GetDistance(GridTile _startTile, GridTile _targetTile)
     {
         return (Mathf.Abs(_startTile.GetGridPosX() - _targetTile.GetGridPosX()) + Mathf.Abs(_startTile.GetGridPosY() - _targetTile.GetGridPosY()));

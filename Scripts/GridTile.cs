@@ -25,11 +25,6 @@ public class GridTile : MonoBehaviour
         occupier = null;
     }
 
-    void Update()
-    {
-        
-    }
-
     // Set tile color and state for movement
     public void SetState(TileState _state)
     {
@@ -51,6 +46,7 @@ public class GridTile : MonoBehaviour
         currState = _state;
     }
 
+    // Fade material
     IEnumerator FadeIn()
     {
         Color tempColor = this.GetComponent<Renderer>().material.color;
@@ -65,6 +61,10 @@ public class GridTile : MonoBehaviour
             yield return null;
         }
     }
+
+    //
+    // Utility Functions
+    //
 
     public void SetGridPos(int x, int y) { gridPosX = x; gridPosY = y;  }
     public int GetGridPosX() { return gridPosX; }

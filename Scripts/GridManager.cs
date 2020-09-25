@@ -27,11 +27,6 @@ public class GridManager : MonoBehaviour
         else
             _inst = this;
     }
-
-    void Update()
-    {
-
-    }
     
     // Set grid size and populate the grid array
     public void SetSize(int _width, int _height, float _cellSize)

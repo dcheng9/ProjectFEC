@@ -13,12 +13,16 @@ public class PlayerCursor : MonoBehaviour
     private Vector3 nextTilePos;
     public float speed;
 
+    public enum UnitState { None, Movement, Attack };
+    private UnitState selectedUnitState;
+
     private bool moving;
 
     private GridActor gridActorSelected;
 
     void Start()
     {
+        selectedUnitState = UnitState.None;
         gridPosX = 0;
         gridPosY = 0;
         moving = false;
@@ -74,23 +78,30 @@ public class PlayerCursor : MonoBehaviour
             {
                 gridActorSelected = GridManager.Inst.GetTileOccupier(gridPosX, gridPosY);
                 GridManager.Inst.GetTileOccupier(gridPosX, gridPosY).GetComponent<GridActor>().Select();
+
                 gridActorSelected.ShowMovementTiles();
             }
-            // [MOVE ACTOR] If something is selected and there isn't an actor on the tile
+            // [MOVE ACTOR] If something is selected and there is no actor on the tile
             else if (gridActorSelected && !GridManager.Inst.GetTileOccupier(gridPosX, gridPosY))
             {
-                gridActorSelected.PathfindingTo(new Vector2(gridPosX, gridPosY));
-                gridActorSelected = null;
+                gridActorSelected.MoveTo(new Vector2(gridPosX, gridPosY));
+                selectedUnitState = UnitState.Movement;
+                //gridActorSelected = null;
             }
         }
         // B Button Inputs
         else if (Input.GetKeyDown(KeyCode.X))
         {
-            // Deselect if something is selected
-            if (gridActorSelected)
+            // [DESELECT ACTOR] If something is selected and it hasn't moved
+            if (gridActorSelected && selectedUnitState == UnitState.None)
             {
                 gridActorSelected.Deselect();
                 gridActorSelected = null;
+            }
+            else if (gridActorSelected && selectedUnitState == UnitState.Movement)
+            {
+                gridActorSelected.ReturnToStartPosition();
+                selectedUnitState = UnitState.None;
             }
         }
     }

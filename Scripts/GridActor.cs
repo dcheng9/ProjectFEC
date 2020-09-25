@@ -10,71 +10,103 @@ public class GridActor : MonoBehaviour
     public int gridPosY;
 
     public int maxMovementPoints;
+    public int currentMovementPoints;
     public float speed;
     public bool isSelected;
 
     public List<GridTile> currentPath;
+    public Vector3 startTilePos;
     private Vector3 nextTilePos;
+    private Vector3 targetTilePos;
 
     void Start()
     {
         isSelected = false;
+        currentMovementPoints = maxMovementPoints;
 
+        // Make aware of grid
         SetGridPos((int)transform.position.x, (int)transform.position.z);
-        transform.position = GridManager.Inst.GetTileCenterPos(gridPosX, transform.position.y, gridPosY);
+
+        startTilePos = transform.position;
 
         // When instatiated let the grid know it occupies the space
         if (!GridManager.Inst.GetTileOccupier(gridPosX, gridPosY))
             GridManager.Inst.SetTileOccupier(this, gridPosX, gridPosY);
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-    public void PathfindingTo(Vector2 _target)
+    public void MoveTo(Vector2 _target)
     {
         currentPath.Clear();
         currentPath = GetComponent<GridPathfinding>().FindPath(new Vector2(gridPosX, gridPosY), _target);
 
-        StartCoroutine(GoTo(_target));
-        Deselect();
+        targetTilePos = new Vector3(_target.x, 0, _target.y);
+
+        StartCoroutine(MoveToTarget());
         SetGridPos((int)_target.x, (int)_target.y);
     }
 
-    IEnumerator GoTo(Vector2 _target)
+    // Move to tile
+    IEnumerator MoveToTarget()
     {
         int count = 0;
         nextTilePos = currentPath[count].GetPos();
+        currentMovementPoints--;
 
         // Loop through the path until object gets to target
-        while (transform.position != GridManager.Inst.GetTileCenterPos(_target.x, 0.5f, _target.y))
+        while (transform.position != targetTilePos)
         {
+            // Go to next waypoint
             if (transform.position == nextTilePos)
             {
                 count++;
                 if (count >= currentPath.Count)
                     yield break;
                 nextTilePos = currentPath[count].GetPos();
+                currentMovementPoints--;
             }
             transform.position = Vector3.MoveTowards(transform.position, nextTilePos, speed * Time.deltaTime);
+
             yield return null;
         }
     }
 
+    public void ReturnToStartPosition()
+    {
+        StopCoroutine(MoveToTarget());
+
+        transform.position = startTilePos;
+
+        SetGridPos((int)startTilePos.x, (int)startTilePos.z);
+    }
+
     public void ShowMovementTiles()
+    {
+        // Check movement range
+        for (int x = gridPosX - maxMovementPoints; x <= gridPosX + maxMovementPoints; x++)
+        {
+            for (int y = gridPosY - maxMovementPoints; y <= gridPosY + maxMovementPoints; y++)
+            {
+                // Skip tiles outside movement range
+                if ((Mathf.Abs(x - gridPosX) + Mathf.Abs(y - gridPosY)) > maxMovementPoints)
+                    continue;
+
+                if (GridManager.Inst.IsWithinGrid(x, y))
+                {
+                    // Set tile materials to blue (movement)
+                    GridManager.Inst.SetTileState(GridTile.TileState.Movement, x, y);
+                }
+            }
+        }
+    }
+
+    public void HideMovementTiles()
     {
         for (int x = gridPosX - maxMovementPoints; x <= gridPosX + maxMovementPoints; x++)
         {
             for (int y = gridPosY - maxMovementPoints; y <= gridPosY + maxMovementPoints; y++)
             {
-                if ((Mathf.Abs(x - gridPosX) + Mathf.Abs(y - gridPosY)) > maxMovementPoints)
-                    continue;
-
                 if (GridManager.Inst.IsWithinGrid(x, y))
-                    GridManager.Inst.SetTileState(GridTile.TileState.Movement, x, y);
+                    GridManager.Inst.SetTileState(GridTile.TileState.None, x, y);
             }
         }
     }
@@ -88,17 +120,11 @@ public class GridActor : MonoBehaviour
 
         GridManager.Inst.SetTileOccupier(this, x, y);
     }
+
     public void Select() { isSelected = true; }
     public void Deselect() 
     {
-        for (int x = gridPosX - maxMovementPoints; x <= gridPosX + maxMovementPoints; x++)
-        {
-            for (int y = gridPosY - maxMovementPoints; y <= gridPosY + maxMovementPoints; y++)
-            {
-                if (GridManager.Inst.IsWithinGrid(x, y))
-                    GridManager.Inst.SetTileState(GridTile.TileState.None, x, y);
-            }
-        }
-        isSelected = false; 
+        HideMovementTiles();
+        isSelected = false;
     }
 }
