@@ -78,13 +78,11 @@ public class PlayerCursor : MonoBehaviour
             {
                 gridActorSelected = GridManager.Inst.GetTileOccupier(gridPosX, gridPosY);
                 GridManager.Inst.GetTileOccupier(gridPosX, gridPosY).GetComponent<GridActor>().Select();
-
-                gridActorSelected.ShowMovementTiles();
             }
-            // [MOVE ACTOR] If something is selected and there is no actor on the tile
-            else if (gridActorSelected && !GridManager.Inst.GetTileOccupier(gridPosX, gridPosY))
+            // [MOVE ACTOR] If something is selected and there is no other actor on the tile
+            else if (gridActorSelected && (!GridManager.Inst.GetTileOccupier(gridPosX, gridPosY) || GridManager.Inst.GetTileOccupier(gridPosX, gridPosY) == gridActorSelected))
             {
-                gridActorSelected.MoveTo(new Vector2(gridPosX, gridPosY));
+                gridActorSelected.MoveTo(gridPosX, gridPosY);
                 selectedUnitState = UnitState.Movement;
                 //gridActorSelected = null;
             }

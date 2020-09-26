@@ -6,10 +6,10 @@ using UnityEngine;
 public class GridPathfinding : MonoBehaviour
 {
     public List<GridTile> path = new List<GridTile>();
-    public List<GridTile> FindPath (Vector2 _startPos, Vector2 _targetPos)
+    public List<GridTile> FindPath (int _startPosX, int _startPosY, int _targetPosX, int _targetPosY)
     {
-        GridTile startTile = GridManager.Inst.GetTile((int)_startPos.x, (int)_startPos.y);
-        GridTile targetTile = GridManager.Inst.GetTile((int)_targetPos.x, (int)_targetPos.y);
+        GridTile startTile = GridManager.Inst.GetTile(_startPosX, _startPosY);
+        GridTile targetTile = GridManager.Inst.GetTile(_targetPosX, _targetPosY);
 
         List<GridTile> openSet = new List<GridTile>();
         HashSet<GridTile> closedSet = new HashSet<GridTile>();

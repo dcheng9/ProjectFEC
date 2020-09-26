@@ -41,6 +41,7 @@ public class GridTile : MonoBehaviour
             case TileState.Attack:
                 GetComponent<Renderer>().enabled = true;
                 GetComponent<Renderer>().material = matAttack;
+                StartCoroutine(FadeIn());
                 break;
         }
         currState = _state;

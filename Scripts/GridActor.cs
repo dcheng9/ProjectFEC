@@ -11,6 +11,7 @@ public class GridActor : MonoBehaviour
 
     public int maxMovementPoints;
     public int currentMovementPoints;
+    public int attackRange;
     public float speed;
     public bool isSelected;
 
@@ -34,15 +35,23 @@ public class GridActor : MonoBehaviour
             GridManager.Inst.SetTileOccupier(this, gridPosX, gridPosY);
     }
 
-    public void MoveTo(Vector2 _target)
+    public void MoveTo(int targetX, int targetY)
     {
-        currentPath.Clear();
-        currentPath = GetComponent<GridPathfinding>().FindPath(new Vector2(gridPosX, gridPosY), _target);
+        targetTilePos = GridManager.Inst.GetTileCenterPos(targetX, 0, targetY);
 
-        targetTilePos = new Vector3(_target.x, 0, _target.y);
+        if (transform.position != targetTilePos)
+        {
+            currentPath.Clear();
+            currentPath = GetComponent<GridPathfinding>().FindPath(gridPosX, gridPosY, targetX, targetY);
 
-        StartCoroutine(MoveToTarget());
-        SetGridPos((int)_target.x, (int)_target.y);
+            StopCoroutine("MoveToTarget");
+            StartCoroutine("MoveToTarget");
+        }
+        else
+        {
+            HideMovementTiles();
+            ShowAttackTiles();
+        }
     }
 
     // Move to tile
@@ -50,7 +59,6 @@ public class GridActor : MonoBehaviour
     {
         int count = 0;
         nextTilePos = currentPath[count].GetPos();
-        currentMovementPoints--;
 
         // Loop through the path until object gets to target
         while (transform.position != targetTilePos)
@@ -68,15 +76,24 @@ public class GridActor : MonoBehaviour
 
             yield return null;
         }
+
+        // Arrived at destination
+        currentMovementPoints--;
+        SetGridPos((int)transform.position.x, (int)transform.position.z);
+        HideMovementTiles();
+        ShowAttackTiles();
     }
 
     public void ReturnToStartPosition()
     {
-        StopCoroutine(MoveToTarget());
+        // Stop any movement
+        StopCoroutine("MoveToTarget");
 
+        // Reset position movement
         transform.position = startTilePos;
-
         SetGridPos((int)startTilePos.x, (int)startTilePos.z);
+        currentMovementPoints = maxMovementPoints;
+        ShowMovementTiles();
     }
 
     public void ShowMovementTiles()
@@ -111,6 +128,40 @@ public class GridActor : MonoBehaviour
         }
     }
 
+    public void ShowAttackTiles()
+    {
+        // Check movement range
+        for (int x = gridPosX - attackRange; x <= gridPosX + attackRange; x++)
+        {
+            for (int y = gridPosY - attackRange; y <= gridPosY + attackRange; y++)
+            {
+                // Skip tiles outside movement range
+                if ((Mathf.Abs(x - gridPosX) + Mathf.Abs(y - gridPosY)) > attackRange)
+                    continue;
+                else if (gridPosX == x && gridPosY == y)
+                    continue;
+
+                if (GridManager.Inst.IsWithinGrid(x, y))
+                {
+                    // Set tile materials to blue (movement)
+                    GridManager.Inst.SetTileState(GridTile.TileState.Attack, x, y);
+                }
+            }
+        }
+    }
+
+    public void HideAttackTiles()
+    {
+        for (int x = gridPosX - attackRange; x <= gridPosX + attackRange; x++)
+        {
+            for (int y = gridPosY - attackRange; y <= gridPosY + attackRange; y++)
+            {
+                if (GridManager.Inst.IsWithinGrid(x, y))
+                    GridManager.Inst.SetTileState(GridTile.TileState.None, x, y);
+            }
+        }
+    }
+
     public void SetGridPos (int x, int y) 
     {
         GridManager.Inst.SetTileOccupier(null, gridPosX, gridPosY);
@@ -121,7 +172,11 @@ public class GridActor : MonoBehaviour
         GridManager.Inst.SetTileOccupier(this, x, y);
     }
 
-    public void Select() { isSelected = true; }
+    public void Select() 
+    { 
+        isSelected = true;
+        ShowMovementTiles();
+    }
     public void Deselect() 
     {
         HideMovementTiles();
